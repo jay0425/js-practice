@@ -3,12 +3,6 @@ const todoList = document.querySelector("#todo-list");
 
 const savedTodoList = JSON.parse(localStorage.getItem("saved-items"));
 
-if (savedTodoList) {
-  for (let i = 0; i < savedTodoList.length; i++) {
-    createTodo(savedTodoList[i]);
-  }
-}
-
 const createTodo = function (storageData) {
   let todoContents = todoInput.value;
   if (storageData) {
@@ -25,7 +19,13 @@ const createTodo = function (storageData) {
 
   newLi.addEventListener("dblclick", () => {
     newLi.remove();
+    saveItemsFn();
   });
+
+  if (storageData?.complete) {
+    //storageData가 null 이거나 undefined면 뒤에 complete를 생략하게 된다.
+    newLi.classList.add("complete");
+  }
 
   newSpan.textContent = todoContents;
   newLi.appendChild(newBtn);
@@ -46,6 +46,7 @@ const deleteAll = function () {
   for (let i = 0; i < liList.length; i++) {
     liList[i].remove();
   }
+  saveItemsFn();
 };
 const saveItemsFn = function () {
   const saveItems = [];
@@ -56,5 +57,14 @@ const saveItemsFn = function () {
     };
     saveItems.push(todoObj);
   }
-  localStorage.setItem("saved-items", JSON.stringify(saveItems));
+
+  saveItems.length == 0
+    ? localStorage.removeItem("saved-items")
+    : localStorage.setItem("saved-items", JSON.stringify(saveItems));
 };
+
+if (savedTodoList) {
+  for (let i = 0; i < savedTodoList.length; i++) {
+    createTodo(savedTodoList[i]);
+  }
+}
